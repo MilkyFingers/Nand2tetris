@@ -10,3 +10,32 @@
 // R0 >= 0, R1 >= 0, and R0*R1 < 32768.
 
 // Put your code here.
+
+// The code works as follows;
+// The register R0 is used as a counter, decremented whenever R2 is updated with the value of R1
+
+	@R2
+	D=!M
+	M=M&D
+
+(LOOP)
+    
+    @R0
+    M=M-1
+    D=M
+    @END
+    D;JLT      // Will jump to END if R0 < 0
+    
+    @R1
+    D=M
+    @R2
+    M=M+D      // Here we add the value at R1 to R2
+
+    @R0
+    D=M
+    @LOOP
+    D;JGT     // Here we jump to LOOP if R0 > 0
+
+(END)
+    @END
+    0;JMP 

@@ -12,3 +12,60 @@
 // the screen should remain fully clear as long as no key is pressed.
 
 // Put your code here.
+
+// Screen offset will increment, pointing to the current word on the screen. The loop variable will decrement to control the loop termination
+	@screen_offset
+	M=0
+
+(NO_KEY_PRESSED)
+	
+	// get the current offset and save it in the D register
+	@screen_offset
+	D=M
+	
+	// set the value of A to the base adress plus the offset
+	@SCREEN
+	A=A+D
+	M=0
+	
+	// increment the offset
+	@screen_offset
+	M=M+1
+
+	@KBD
+	D=M
+	@NO_KEY_PRESSED
+	D;JEQ
+
+	// break out of loop and reset value of offset
+	@screen_offset
+	M=0
+		
+(KEY_PRESSED)
+	
+	// get the current offset and save it in the D register
+	@screen_offset
+	D=M
+	
+	// set the value of A to the base adress plus the offset
+	@SCREEN
+	A=A+D
+	M=-1
+	
+	// increment the offset
+	@screen_offset
+	M=M+1
+
+	@KBD
+	D=M
+	@KEY_PRESSED
+	D;JGT
+
+	// break out of loop and reset value of offset
+	@screen_offset
+	M=0
+
+	// jump back to NO_KEY_PRESSED
+	@NO_KEY_PRESSED
+	0;JMP
+		
