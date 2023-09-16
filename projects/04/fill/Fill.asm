@@ -13,59 +13,67 @@
 
 // Put your code here.
 
-// Screen offset will increment, pointing to the current word on the screen. The loop variable will decrement to control the loop termination
-	@screen_offset
-	M=0
+// this vairable will tell the loop to finish
+@8192
+D=A
+@halt
+M=D
 
-(NO_KEY_PRESSED)
-	
-	// get the current offset and save it in the D register
-	@screen_offset
+// this variable will increment in the loop, pointing to the memory location to be changed
+@offset
+M=0
+
+(KBD_STATUS)
+	// reset offset to 0 and jumpt to empty if no key pressed otherwise jump to fill
+	@offset
+	M=0
+	@KBD
 	D=M
-	
-	// set the value of A to the base adress plus the offset
+	@EMPTY
+	D;JEQ
+	@FILL
+	0;JMP
+
+(EMPTY)
+	@offset
+	D=M
+
 	@SCREEN
 	A=A+D
 	M=0
-	
-	// increment the offset
-	@screen_offset
+
+	@offset
 	M=M+1
 
-	@KBD
+	// this will sub the current offset from halt and jump to empty as long as its > 0
+	@halt
 	D=M
-	@NO_KEY_PRESSED
-	D;JEQ
+	@offset
+	D=D-M
+	@EMPTY
+	D;JGT
 
-	// break out of loop and reset value of offset
-	@screen_offset
-	M=0
-		
-(KEY_PRESSED)
-	
-	// get the current offset and save it in the D register
-	@screen_offset
+	@KBD_STATUS
+	0;JMP
+
+(FILL)
+	@offset
 	D=M
-	
-	// set the value of A to the base adress plus the offset
+
 	@SCREEN
 	A=A+D
 	M=-1
-	
-	// increment the offset
-	@screen_offset
+
+	@offset
 	M=M+1
 
-	@KBD
+	// this will sub the current offset from halt and jump to empty as long as its > 0
+	@halt
 	D=M
-	@KEY_PRESSED
+	@offset
+	D=D-M
+	@FILL
 	D;JGT
 
-	// break out of loop and reset value of offset
-	@screen_offset
-	M=0
-
-	// jump back to NO_KEY_PRESSED
-	@NO_KEY_PRESSED
+	@KBD_STATUS
 	0;JMP
-		
