@@ -28,17 +28,22 @@ class Pyhasm:
         
         self.p.reset()
 
+        addr = 16
         while(True):
-            if self.p.commandType() == "L":
-                pass
-            elif self.p.commandType() == "C":
+            if self.p.commandType() == "C":
                 self.prog.append(self.c.full_instruction(self.p.dest(), self.p.comp(), self.p.jump())+"\n")
-            else:
+            elif self.p.commandType() == "A":
+                # if the A instruction isnt symbolic, simply add it to prog
                 try:
                     self.prog.append(format( int(self.p.symbol()), '016b') + "\n")
-                # if the symbol is not a number then need to retrieve from the table
+                # if the symbol is not a number then need to retrieve from the table. first check the tabel to see if it exists, otherwise add the new variable
                 except:
-                    self.prog.append(format( int(self.s.getAddress(self.p.symbol())), '016b') + "\n")
+                    if self.s.contains(self.p.symbol()):
+                        self.prog.append(format( int(self.s.getAddress(self.p.symbol())), '016b') + "\n")
+                    else:
+                        self.s.addEntry(self.p.symbol(), addr)
+                        addr += 1
+                        self.prog.append(format( int(self.s.getAddress(self.p.symbol())), '016b') + "\n")
     
             if not self.p.advance():
                 self.prog[-1] = self.prog[-1].strip("\n")
@@ -49,7 +54,7 @@ class Pyhasm:
 
 if __name__ == '__main__':
     parg = argparse.ArgumentParser(description="Assembler for the hack computer platform.")
-    parg.add_argument("Source_file", type=str, help="The path to the source (.s) file.")
-    parg.add_argument("Output_file_name", type=str, help="The name of the machine-code output file (will end in *.hack).")
+    parg.add_argument("-s", required=True, type=str, help="The path to the source (.s) file.")
+    parg.add_argument("-o", required=True, type=str, help="The name of the machine-code output file (will end in *.hack).")
     args = parg.parse_args()
-    run = Pyhasm(args[0], args[1])
+    run = Pyhasm(args.s, args.o)

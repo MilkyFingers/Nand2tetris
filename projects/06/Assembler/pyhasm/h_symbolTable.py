@@ -19,3 +19,4 @@ class SymbolTable:
             return self.symbol_table[symbol]
         else:
             raise KeyError("The symbol does not exist!")
+
